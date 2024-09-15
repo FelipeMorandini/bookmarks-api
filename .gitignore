@@ -128,3 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+.idea
