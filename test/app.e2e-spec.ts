@@ -72,15 +72,6 @@ describe('Application e2e test', () => {
     });
 
     describe('Sign In', () => {
-      it('Should Sign in', () => {
-        return pactum
-          .spec()
-          .post(
-            '/auth/signin',
-          ).withBody(signInRequest)
-          .expectStatus(200)
-      });
-
       it('Should return an error when the password is incorrect', () => {
         return pactum
           .spec()
@@ -98,12 +89,42 @@ describe('Application e2e test', () => {
           ).withBody(signInRequestWrongEmail)
           .expectStatus(403)
       });
+
+      it('Should Sign in', () => {
+        return pactum
+          .spec()
+          .post(
+            '/auth/signin',
+          ).withBody(signInRequest)
+          .expectStatus(200)
+          .stores('userAt', 'access_token')
+      });
     });
   });
 
   describe('User', () => {
     describe('Get current user', () => {
-      it.todo('Should Get current user');
+      it('Should Get current user', () => {
+        return pactum
+          .spec()
+          .get(
+            '/users/me'
+          ).withHeaders({
+            Authorization: `bearer $S{userAt}`
+          }).expectStatus(200)
+          .inspect();
+
+      });
+
+      it('Should fail if user is not authenticated', () => {
+        return pactum
+          .spec()
+          .get(
+            '/users/me'
+          ).expectStatus(401)
+          .inspect();
+
+      });
     });
 
     describe('Update current user', () => {
