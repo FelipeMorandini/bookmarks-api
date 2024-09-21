@@ -6,10 +6,7 @@ import { CreateBookmarkDto, EditBookmarkDto } from './dto';
 export class BookmarkService {
   constructor(private prisma: PrismaService) {}
 
-  async createBookmark(
-    userId: number,
-    dto: CreateBookmarkDto,
-  ) {
+  async createBookmark(userId: number, dto: CreateBookmarkDto) {
     return this.prisma.bookmark.create({
       data: {
         userId,

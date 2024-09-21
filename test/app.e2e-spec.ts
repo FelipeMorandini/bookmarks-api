@@ -19,19 +19,19 @@ import {
 } from './dto';
 
 describe('Application e2e test', () => {
-  let app: INestApplication
-  let prisma: PrismaService
+  let app: INestApplication;
+  let prisma: PrismaService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule]
+      imports: [AppModule],
     }).compile();
     app = moduleRef.createNestApplication();
 
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
-      })
+      }),
     );
 
     await app.init();
@@ -41,7 +41,7 @@ describe('Application e2e test', () => {
 
     prisma = app.get(PrismaService);
     await prisma.cleandb();
-  })
+  });
 
   afterAll(async () => {
     await app.close();
@@ -52,18 +52,16 @@ describe('Application e2e test', () => {
       it('Should Sign Up', () => {
         return pactum
           .spec()
-          .post(
-            '/auth/signup',
-          ).withBody(signUpRequest)
-          .expectStatus(201)
+          .post('/auth/signup')
+          .withBody(signUpRequest)
+          .expectStatus(201);
       });
 
       it('Should fail if the user already exists', () => {
         return pactum
           .spec()
-          .post(
-            '/auth/signup',
-          ).withBody(signUpRequest)
+          .post('/auth/signup')
+          .withBody(signUpRequest)
           .expectStatus(403)
           .expectBody({
             statusCode: 403,
@@ -75,9 +73,8 @@ describe('Application e2e test', () => {
       it('Should fail if a mandatory field is missing', () => {
         return pactum
           .spec()
-          .post(
-            '/auth/signup',
-          ).withBody(signUpRequestMissingFields)
+          .post('/auth/signup')
+          .withBody(signUpRequestMissingFields)
           .expectStatus(400)
           .expectBody({
             statusCode: 400,
@@ -96,9 +93,8 @@ describe('Application e2e test', () => {
       it('Should return an error when the password is incorrect', () => {
         return pactum
           .spec()
-          .post(
-            '/auth/signin',
-          ).withBody(signInRequestWrongPassword)
+          .post('/auth/signin')
+          .withBody(signInRequestWrongPassword)
           .expectStatus(403)
           .expectBody({
             statusCode: 403,
@@ -110,9 +106,8 @@ describe('Application e2e test', () => {
       it('Should return an error when the email is incorrect', () => {
         return pactum
           .spec()
-          .post(
-            '/auth/signin',
-          ).withBody(signInRequestWrongEmail)
+          .post('/auth/signin')
+          .withBody(signInRequestWrongEmail)
           .expectStatus(403)
           .expectBody({
             statusCode: 403,
@@ -124,9 +119,8 @@ describe('Application e2e test', () => {
       it('Should Sign in', () => {
         return pactum
           .spec()
-          .post(
-            '/auth/signin',
-          ).withBody(signInRequest)
+          .post('/auth/signin')
+          .withBody(signInRequest)
           .expectStatus(200)
           .stores('userAt', 'access_token');
       });
@@ -138,23 +132,18 @@ describe('Application e2e test', () => {
       it('Should Get current user', () => {
         return pactum
           .spec()
-          .get(
-            '/users/me'
-          ).withHeaders({
-            Authorization: `bearer $S{userAt}`
-          }).expectStatus(200);
+          .get('/users/me')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .expectStatus(200);
       });
 
       it('Should fail if user is not authenticated', () => {
-        return pactum
-          .spec()
-          .get(
-            '/users/me'
-          ).expectStatus(401)
-          .expectBody({
-            statusCode: 401,
-            message: 'Unauthorized',
-          });
+        return pactum.spec().get('/users/me').expectStatus(401).expectBody({
+          statusCode: 401,
+          message: 'Unauthorized',
+        });
       });
     });
 
@@ -162,24 +151,23 @@ describe('Application e2e test', () => {
       it('should fail if user is not authenticated', () => {
         return pactum
           .spec()
-          .patch(
-            '/users',
-          ).withBody(editUserRequestEmail)
+          .patch('/users')
+          .withBody(editUserRequestEmail)
           .expectStatus(401)
           .expectBody({
             statusCode: 401,
             message: 'Unauthorized',
-          })
+          });
       });
 
       it('Should Edit current user with all fields', () => {
         return pactum
           .spec()
-          .patch(
-            '/users',
-          ).withHeaders({
+          .patch('/users')
+          .withHeaders({
             Authorization: `bearer $S{userAt}`,
-          }).withBody(editUserRequestAll)
+          })
+          .withBody(editUserRequestAll)
           .expectStatus(200)
           .expectBodyContains(editUserRequestAll.email)
           .expectBodyContains(editUserRequestAll.firstName)
@@ -189,11 +177,11 @@ describe('Application e2e test', () => {
       it('Should Edit current user with email only', () => {
         return pactum
           .spec()
-          .patch(
-            '/users',
-          ).withHeaders({
+          .patch('/users')
+          .withHeaders({
             Authorization: `bearer $S{userAt}`,
-          }).withBody(editUserRequestEmail)
+          })
+          .withBody(editUserRequestEmail)
           .expectStatus(200)
           .expectBodyContains(editUserRequestEmail.email);
       });
@@ -201,11 +189,11 @@ describe('Application e2e test', () => {
       it('Should Edit current user with first name only', () => {
         return pactum
           .spec()
-          .patch(
-            '/users',
-          ).withHeaders({
+          .patch('/users')
+          .withHeaders({
             Authorization: `bearer $S{userAt}`,
-          }).withBody(editUserRequestFirstName)
+          })
+          .withBody(editUserRequestFirstName)
           .expectStatus(200)
           .expectBodyContains(editUserRequestFirstName.firstName);
       });
@@ -213,11 +201,11 @@ describe('Application e2e test', () => {
       it('Should Edit current user with last name only', () => {
         return pactum
           .spec()
-          .patch(
-            '/users',
-          ).withHeaders({
+          .patch('/users')
+          .withHeaders({
             Authorization: `bearer $S{userAt}`,
-          }).withBody(editUserRequestLastName)
+          })
+          .withBody(editUserRequestLastName)
           .expectStatus(200)
           .expectBodyContains(editUserRequestLastName.lastName);
       });
@@ -225,17 +213,15 @@ describe('Application e2e test', () => {
       it('Should fail if the email is not an email', () => {
         return pactum
           .spec()
-          .patch(
-            '/users',
-          ).withHeaders({
+          .patch('/users')
+          .withHeaders({
             Authorization: `bearer $S{userAt}`,
-          }).withBody(editUserRequestNotEmail)
+          })
+          .withBody(editUserRequestNotEmail)
           .expectStatus(400)
           .expectBody({
             statusCode: 400,
-            message: [
-              'email must be an email',
-            ],
+            message: ['email must be an email'],
             error: 'Bad Request',
           });
       });
@@ -243,17 +229,15 @@ describe('Application e2e test', () => {
       it('Should fail if a field is of the wrong type', () => {
         return pactum
           .spec()
-          .patch(
-            '/users',
-          ).withHeaders({
+          .patch('/users')
+          .withHeaders({
             Authorization: `bearer $S{userAt}`,
-          }).withBody(editUserRequestWrongType)
+          })
+          .withBody(editUserRequestWrongType)
           .expectStatus(400)
           .expectBody({
             statusCode: 400,
-            message: [
-              'firstName must be a string',
-            ],
+            message: ['firstName must be a string'],
             error: 'Bad Request',
           });
       });
@@ -280,6 +264,5 @@ describe('Application e2e test', () => {
     describe('Delete a bookmark', () => {
       it.todo('Should Delete a Bookmark');
     });
-
   });
-})
+});
