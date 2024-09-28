@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookmarkDto, EditBookmarkDto } from './dto';
+import { BookmarkNotFoundException } from '../common/custom-exceptions';
 
 @Injectable()
 export class BookmarkService {
@@ -27,12 +28,16 @@ export class BookmarkService {
   }
 
   async getBookmarkById(userId: number, bookmarkId: number) {
-    return this.prisma.bookmark.findFirst({
+    const bookmark = await this.prisma.bookmark.findUnique({
       where: {
         id: bookmarkId,
         userId,
       },
     });
+    if (!bookmark) {
+      throw new BookmarkNotFoundException(bookmarkId);
+    }
+    return bookmark;
   }
 
   async updateBookmarkById(
@@ -40,6 +45,7 @@ export class BookmarkService {
     bookmarkId: number,
     dto: EditBookmarkDto,
   ) {
+    await this.getBookmarkById(userId, bookmarkId);
     return this.prisma.bookmark.update({
       where: {
         id: bookmarkId,
@@ -52,6 +58,7 @@ export class BookmarkService {
   }
 
   async deleteBookmarkById(userId: number, bookmarkId: number) {
+    await this.getBookmarkById(userId, bookmarkId);
     return this.prisma.bookmark.delete({
       where: {
         id: bookmarkId,

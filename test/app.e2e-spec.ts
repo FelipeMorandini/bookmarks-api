@@ -10,12 +10,17 @@ import {
   signInRequest,
   signInRequestWrongPassword,
   signInRequestWrongEmail,
+  createBookmarkRequest,
+  createBookmarkRequestMissingField,
   editUserRequestAll,
   editUserRequestEmail,
   editUserRequestFirstName,
   editUserRequestLastName,
   editUserRequestNotEmail,
   editUserRequestWrongType,
+  createBookmarkRequestWrongType,
+  editBookmarkSuccessfullyRequest,
+  editBookmarkWrongTypeRequest,
 } from './dto';
 
 describe('Application e2e test', () => {
@@ -246,23 +251,208 @@ describe('Application e2e test', () => {
 
   describe('Bookmarks', () => {
     describe('Create bookmark', () => {
-      it.todo('Should Create a Bookmark');
+      it('Should Fail if user is not authenticated', () => {
+        return pactum
+          .spec()
+          .post('/bookmarks')
+          .withBody(createBookmarkRequest)
+          .expectStatus(401)
+          .expectBody({
+            statusCode: 401,
+            message: 'Unauthorized',
+          });
+      });
+      it('Should Fail if a mandatory field is missing', () => {
+        return pactum
+          .spec()
+          .post('/bookmarks')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .withBody(createBookmarkRequestMissingField)
+          .expectStatus(400)
+          .expectBody({
+            statusCode: 400,
+            message: ['title should not be empty', 'title must be a string'],
+            error: 'Bad Request',
+          });
+      });
+      it('Should Fail if a field is of the wrong type', () => {
+        return pactum
+          .spec()
+          .post('/bookmarks')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .withBody(createBookmarkRequestWrongType)
+          .expectStatus(400)
+          .expectBody({
+            statusCode: 400,
+            message: ['title must be a string'],
+            error: 'Bad Request',
+          });
+      });
+      it('Should Create a Bookmark', () => {
+        return pactum
+          .spec()
+          .post('/bookmarks')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .withBody(createBookmarkRequest)
+          .expectStatus(201)
+          .expectBodyContains(createBookmarkRequest.title)
+          .expectBodyContains(createBookmarkRequest.description)
+          .expectBodyContains(createBookmarkRequest.link)
+          .stores('bookmarkId', 'id');
+      });
     });
 
     describe('Get all bookmarks', () => {
-      it.todo('Should get all Bookmarks');
+      it('Should fail if user is not authenticated', () => {
+        return pactum.spec().get('/bookmarks').expectStatus(401).expectBody({
+          statusCode: 401,
+          message: 'Unauthorized',
+        });
+      });
+      it("Should get all the current user's Bookmarks", () => {
+        return pactum
+          .spec()
+          .get('/bookmarks')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .expectStatus(200)
+          .expectJsonLength(1);
+      });
     });
 
     describe('Get bookmark by ID', () => {
-      it.todo('Should get a Bookmark by ID');
+      it('Should fail if user is not authenticated', () => {
+        return pactum.spec().get('/bookmarks/1').expectStatus(401).expectBody({
+          statusCode: 401,
+          message: 'Unauthorized',
+        });
+      });
+      it('Should fail if bookmark is not found', () => {
+        return pactum
+          .spec()
+          .get('/bookmarks/1498567')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .expectStatus(404)
+          .expectBody({
+            statusCode: 404,
+            error: 'Not Found',
+            message: 'Bookmark with ID 1498567 not found',
+          });
+      });
+      it('Should get a Bookmark by ID', () => {
+        return pactum
+          .spec()
+          .get('/bookmarks/$S{bookmarkId}')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .expectStatus(200)
+          .expectBodyContains(createBookmarkRequest.title)
+          .expectBodyContains(createBookmarkRequest.description)
+          .expectBodyContains(createBookmarkRequest.link);
+      });
     });
 
     describe('Edit a bookmark', () => {
-      it.todo('Should Edit a Bookmark');
+      it('Should fail if user is not authenticated', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/$S{bookmarkId}')
+          .withBody(editBookmarkSuccessfullyRequest)
+          .expectStatus(401)
+          .expectBody({
+            statusCode: 401,
+            message: 'Unauthorized',
+          });
+      });
+      it('Should fail if a field is of the wrong type', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/$S{bookmarkId}')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .withBody(editBookmarkWrongTypeRequest)
+          .expectStatus(400)
+          .expectBody({
+            statusCode: 400,
+            message: ['title must be a string'],
+            error: 'Bad Request',
+          });
+      });
+      it('Should fail if the bookmark is not found', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/1498567')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .withBody(editBookmarkSuccessfullyRequest)
+          .expectStatus(404)
+          .expectBody({
+            statusCode: 404,
+            error: 'Not Found',
+            message: 'Bookmark with ID 1498567 not found',
+          });
+      });
+      it('Should Edit a Bookmark', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/$S{bookmarkId}')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .withBody(editBookmarkSuccessfullyRequest)
+          .expectStatus(200)
+          .expectBodyContains(editBookmarkSuccessfullyRequest.title)
+          .expectBodyContains(editBookmarkSuccessfullyRequest.description)
+          .expectBodyContains(editBookmarkSuccessfullyRequest.link);
+      });
     });
 
     describe('Delete a bookmark', () => {
-      it.todo('Should Delete a Bookmark');
+      it('Should fail if user is not authenticated', () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/$S{bookmarkId}')
+          .expectStatus(401)
+          .expectBody({
+            statusCode: 401,
+            message: 'Unauthorized',
+          });
+      });
+      it('Should fail if the bookmark is not found', () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/1498567')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .expectStatus(404)
+          .expectBody({
+            statusCode: 404,
+            error: 'Not Found',
+            message: 'Bookmark with ID 1498567 not found',
+          });
+      });
+      it('Should Delete a Bookmark', () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/$S{bookmarkId}')
+          .withHeaders({
+            Authorization: `bearer $S{userAt}`,
+          })
+          .expectStatus(200);
+      });
     });
   });
 });
