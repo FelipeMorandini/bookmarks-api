@@ -5,6 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ForbiddenException } from '@nestjs/common';
 import * as argon from 'argon2';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import * as module from 'node:module';
 
 jest.mock('argon2', () => ({
   hash: jest.fn(),
@@ -90,6 +92,38 @@ describe('AuthService', () => {
       );
       expect(result).toEqual({ access_token: token });
     });
+    it('should handle Prisma unique constraint violation', async () => {
+      const signUpDto = {
+        email: 'test@example.com',
+        password: 'password123',
+        firstName: 'John',
+        lastName: 'Doe',
+      };
+
+      const prismaError = new PrismaClientKnownRequestError('', {
+        code: 'P2002',
+        clientVersion: '2.0.0',
+      });
+
+      jest.spyOn(prismaService.user, 'create').mockRejectedValue(prismaError);
+
+      await expect(authService.signup(signUpDto)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+    it('should propagate unknown errors during signup', async () => {
+      const signUpDto = {
+        email: 'test@example.com',
+        password: 'password123',
+        firstName: 'John',
+        lastName: 'Doe',
+      };
+
+      const unknownError = new Error('Unknown error');
+      jest.spyOn(prismaService.user, 'create').mockRejectedValue(unknownError);
+
+      await expect(authService.signup(signUpDto)).rejects.toThrow(unknownError);
+    });
   });
 
   describe('signin', () => {
@@ -153,6 +187,67 @@ describe('AuthService', () => {
       await expect(authService.signin(signInDto)).rejects.toThrow(
         ForbiddenException,
       );
+    });
+    it('should throw when user is not found during signin', async () => {
+      const signInDto = {
+        email: 'nonexistent@example.com',
+        password: 'password123',
+      };
+
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
+
+      await expect(authService.signin(signInDto)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should handle database errors during signin', async () => {
+      const signInDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const dbError = new Error('Database connection failed');
+      jest.spyOn(prismaService.user, 'findUnique').mockRejectedValue(dbError);
+
+      await expect(authService.signin(signInDto)).rejects.toThrow(dbError);
+    });
+  });
+  describe('signToken', () => {
+    it('should generate a valid JWT token', async () => {
+      const userId = 1;
+      const email = 'test@example.com';
+      const mockToken = 'mock.jwt.token';
+
+      const jwtService = module.get<JwtService>(JwtService);
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue(mockToken);
+
+      const result = await authService.signToken(userId, email);
+
+      expect(result).toEqual({ access_token: mockToken });
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        { sub: userId, email },
+        expect.any(Object),
+      );
+    });
+
+    it('should use correct JWT configuration', async () => {
+      const userId = 1;
+      const email = 'test@example.com';
+      const mockSecret = 'test-secret';
+
+      const configService = module.get<ConfigService>(ConfigService);
+      jest.spyOn(configService, 'get').mockReturnValue(mockSecret);
+
+      const jwtService = module.get<JwtService>(JwtService);
+      const signingSpy = jest.spyOn(jwtService, 'signAsync');
+
+      await authService.signToken(userId, email);
+
+      expect(signingSpy).toHaveBeenCalledWith(expect.any(Object), {
+        expiresIn: '15m',
+        secret: mockSecret,
+      });
     });
   });
 });
