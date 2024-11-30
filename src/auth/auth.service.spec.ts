@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import { ForbiddenException } from '@nestjs/common';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import * as module from 'node:module';
 
 jest.mock('argon2', () => ({
   hash: jest.fn(),
@@ -16,9 +15,10 @@ jest.mock('argon2', () => ({
 describe('AuthService', () => {
   let authService: AuthService;
   let prismaService: PrismaService;
+  let moduleRef: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       providers: [
         AuthService,
         {
@@ -45,8 +45,8 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    authService = module.get<AuthService>(AuthService);
-    prismaService = module.get<PrismaService>(PrismaService);
+    authService = moduleRef.get<AuthService>(AuthService);
+    prismaService = moduleRef.get<PrismaService>(PrismaService);
   });
 
   describe('signup', () => {
@@ -219,7 +219,7 @@ describe('AuthService', () => {
       const email = 'test@example.com';
       const mockToken = 'mock.jwt.token';
 
-      const jwtService = module.get<JwtService>(JwtService);
+      const jwtService = moduleRef.get<JwtService>(JwtService);
       jest.spyOn(jwtService, 'signAsync').mockResolvedValue(mockToken);
 
       const result = await authService.signToken(userId, email);
@@ -236,10 +236,10 @@ describe('AuthService', () => {
       const email = 'test@example.com';
       const mockSecret = 'test-secret';
 
-      const configService = module.get<ConfigService>(ConfigService);
+      const configService = moduleRef.get<ConfigService>(ConfigService);
       jest.spyOn(configService, 'get').mockReturnValue(mockSecret);
 
-      const jwtService = module.get<JwtService>(JwtService);
+      const jwtService = moduleRef.get<JwtService>(JwtService);
       const signingSpy = jest.spyOn(jwtService, 'signAsync');
 
       await authService.signToken(userId, email);
