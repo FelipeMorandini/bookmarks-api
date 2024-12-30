@@ -13,7 +13,12 @@ export class UserController {
 
   @Get('me')
   getMe(@GetUser() user: User) {
-    return { user: user };
+    if (user) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: _password, ...userWithoutPassword } = user;
+      return { user: userWithoutPassword };
+    }
+    return { user };
   }
 
   @Patch()

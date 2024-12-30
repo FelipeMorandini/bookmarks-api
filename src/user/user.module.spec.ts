@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BookmarkModule } from './bookmark.module';
-import { BookmarkService } from './bookmark.service';
-import { BookmarkController } from './bookmark.controller';
+import { UserModule } from './user.module';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 
-describe('BookmarkModule', () => {
+describe('UserModule', () => {
   let module: TestingModule;
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [
-        BookmarkModule,
+        UserModule,
         ConfigModule.forRoot({
           isGlobal: true,
         }),
@@ -20,7 +20,7 @@ describe('BookmarkModule', () => {
         {
           provide: PrismaService,
           useFactory: () => ({
-            bookmark: {
+            user: {
               findMany: jest.fn(),
               findUnique: jest.fn(),
               create: jest.fn(),
@@ -37,13 +37,13 @@ describe('BookmarkModule', () => {
     expect(module).toBeDefined();
   });
 
-  it('should provide BookmarkService', () => {
-    const service = module.get<BookmarkService>(BookmarkService);
-    expect(service).toBeDefined();
+  it('should have UserController defined', () => {
+    const userController = module.get<UserController>(UserController);
+    expect(userController).toBeDefined();
   });
 
-  it('should provide BookmarkController', () => {
-    const controller = module.get<BookmarkController>(BookmarkController);
-    expect(controller).toBeDefined();
+  it('should have UserService defined', () => {
+    const userService = module.get<UserService>(UserService);
+    expect(userService).toBeDefined();
   });
 });
