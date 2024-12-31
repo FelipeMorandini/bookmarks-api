@@ -11,6 +11,15 @@ export const BookmarkResponseSchema = {
   },
 };
 
+export const BookmarkRequestSchema = {
+  type: 'object',
+  properties: {
+    title: { type: 'string', example: 'My Bookmark' },
+    description: { type: 'string', example: 'My Bookmark Description' },
+    link: { type: 'string', example: 'https://example.com' },
+  },
+};
+
 export const BookmarksArrayResponseSchema = {
   type: 'array',
   items: {
