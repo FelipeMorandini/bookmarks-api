@@ -22,9 +22,7 @@ export const BookmarkRequestSchema = {
 
 export const BookmarksArrayResponseSchema = {
   type: 'array',
-  items: {
-    $ref: '#/components/schemas/BookmarkResponseSchema',
-  },
+  items: BookmarkResponseSchema,
 };
 
 export const BookmarkErrorSchema = {

@@ -62,7 +62,7 @@ export class AuthController {
    * @return {Promise<AuthResponseSchema>} A promise that resolves with the authentication response schema if the user is successfully authenticated.
    */
   @ApiOperation({
-    summary: 'Sign up',
+    summary: 'Sign in',
     description: 'Authenticate a user using the provided credentials.',
   })
   @ApiBody({ schema: SignInRequestSchema })

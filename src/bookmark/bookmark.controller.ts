@@ -56,7 +56,6 @@ export class BookmarkController {
   @ApiResponse({
     status: 200,
     description: 'Bookmarks retrieved',
-    type: [Object],
     schema: BookmarksArrayResponseSchema,
   })
   @ApiResponse({
@@ -84,7 +83,6 @@ export class BookmarkController {
   @ApiResponse({
     status: 200,
     description: 'Bookmark retrieved',
-    type: Object,
     schema: BookmarkResponseSchema,
   })
   @ApiResponse({
@@ -119,7 +117,6 @@ export class BookmarkController {
   @ApiResponse({
     status: 201,
     description: 'Bookmark created',
-    type: Object,
     schema: BookmarkResponseSchema,
   })
   @ApiResponse({
@@ -157,7 +154,6 @@ export class BookmarkController {
   @ApiResponse({
     status: 200,
     description: 'Bookmark updated',
-    type: Object,
     schema: BookmarkResponseSchema,
   })
   @ApiResponse({
@@ -201,7 +197,6 @@ export class BookmarkController {
   @ApiResponse({
     status: 200,
     description: 'Bookmark deleted',
-    type: Object,
     schema: BookmarkResponseSchema,
   })
   @ApiResponse({
