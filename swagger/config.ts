@@ -1,7 +1,13 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-export function setupSwagger(app: INestApplication) {
+/**
+ * Configures and sets up Swagger for the given NestJS application instance.
+ *
+ * @param {INestApplication} app - The NestJS application instance to which Swagger will be applied.
+ * @return {void} This function does not return a value.
+ */
+export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('Bookmarks API')
     .setDescription('API for managing bookmarks')

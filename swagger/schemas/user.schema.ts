@@ -26,3 +26,17 @@ export const EditUserResponseSchema = {
     updatedAt: { type: 'string', format: 'date-time' },
   },
 };
+
+export const UserErrorSchema = {
+  type: 'object',
+  properties: {
+    error: { type: 'string', example: 'Bad Request' },
+    statusCode: { type: 'number', example: 400 },
+    message: {
+      type: 'string',
+      optional: true,
+      example:
+        "Expected property name or '}' in JSON at position 1 (line 1 column 2)",
+    },
+  },
+};

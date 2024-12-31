@@ -4,7 +4,17 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { setupSwagger } from '../swagger';
 
-async function bootstrap() {
+/**
+ * Boots up and initializes the application server.
+ *
+ * This method creates a new NestJS application instance, configures global pipes for validation,
+ * sets up Swagger documentation for the API, and starts listening on the specified port.
+ * The server's base URL and port are retrieved from the configuration service, with default
+ * values provided if not set.
+ *
+ * @return {Promise<void>} A promise that resolves when the application is successfully started and listening for requests.
+ */
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get('PORT') || 3000;
