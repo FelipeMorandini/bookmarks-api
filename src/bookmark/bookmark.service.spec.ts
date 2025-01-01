@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookmarkService } from './bookmark.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookmarkDto } from './dto';
-import { BookmarkNotFoundException } from '../common/custom-exceptions';
+import { BookmarkNotFoundException } from '../common/exceptions';
 
 describe('BookmarkService', () => {
   let bookmarkService: BookmarkService;

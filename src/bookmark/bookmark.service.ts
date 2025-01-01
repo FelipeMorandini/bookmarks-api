@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookmarkDto, EditBookmarkDto } from './dto';
-import { BookmarkNotFoundException } from '../common/custom-exceptions';
+import { BookmarkNotFoundException } from '../common/exceptions';
 
 /**
  * Provides services related to managing bookmarks, including creation, retrieval, update, and deletion.

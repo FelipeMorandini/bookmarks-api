@@ -4,24 +4,25 @@ import { UserModule } from './user/user.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from './logger/logger.module';
 
 /**
- * Represents the root application module in a NestJS application.
+ * AppModule serves as the root module of the application, configuring and assembling all required
+ * modules, services, and dependencies. It defines the core structure and dependencies for the application.
  *
- * AppModule is decorated with the @Module decorator and is used to
- * configure the application's primary dependencies. It serves as a container
- * for various imported sub-modules, ensuring modular and maintainable architecture.
+ * The module imports various essential submodules, such as:
+ * - LoggerModule for application-wide logging.
+ * - AuthModule for handling authentication and authorization logic.
+ * - ConfigModule, configured as global, for managing application settings and environment variables.
+ * - UserModule to manage user-related operations.
+ * - BookmarkModule to handle bookmarking functionalities.
+ * - PrismaModule for interacting with the database via Prisma ORM.
  *
- * The following modules are imported:
- * - AuthModule: Handles user authentication and authorization.
- * - ConfigModule: Provides configuration management for the application.
- *   ConfigModule is configured as a global module, making its configuration accessible across the entire application.
- * - UserModule: Manages user-related operations and functionalities.
- * - BookmarkModule: Handles operations related to managing bookmarks.
- * - PrismaModule: Facilitates database interactions through Prisma ORM.
+ * This module integrates these components to provide a cohesive organization of application features.
  */
 @Module({
   imports: [
+    LoggerModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,

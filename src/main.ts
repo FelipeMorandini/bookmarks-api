@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { setupSwagger } from '../swagger';
+import { ErrorInterceptor } from './common/interceptors/error.interceptor';
+import { LoggerService } from './logger/logger.service';
 
 /**
  * Boots up and initializes the application server.
@@ -17,10 +19,13 @@ import { setupSwagger } from '../swagger';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  const logger = app.get(LoggerService);
   const port = configService.get('PORT') || 3000;
   const baseUrl = configService.get('BASE_URL') || 'http://localhost';
 
   setupSwagger(app);
+
+  app.useGlobalInterceptors(new ErrorInterceptor());
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -29,12 +34,13 @@ async function bootstrap(): Promise<void> {
   );
 
   await app.listen(port);
-  console.log(
-    `Application is running on: ${baseUrl}:${port}\n`,
-    `Visit the API documentation at: ${baseUrl}:${port}/api`,
+  logger.log(
+    `Application is running on: ${baseUrl}:${port}\nVisit the API documentation at: ${baseUrl}:${port}/api`,
+    'Bootstrap',
   );
 }
 
 bootstrap().then(() => {
-  console.log('Application started successfully');
+  const logger = new LoggerService();
+  logger.log('Application started successfully', 'Bootstrap');
 });
